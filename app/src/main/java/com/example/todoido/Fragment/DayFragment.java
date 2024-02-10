@@ -98,10 +98,6 @@ public class DayFragment extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String item = (String) parent.getItemAtPosition(position);
 
-                // 데이터베이스에 알림 시간 저장
-                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("일정 경로/" + "일정 ID");
-                databaseReference.child("spinnerSelection").setValue(item);  // 알림 시간 저장
-
                 Calendar calendar = Calendar.getInstance();
                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 int minute = calendar.get(Calendar.MINUTE);
@@ -142,11 +138,13 @@ public class DayFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), AlarmReceiver.class);
                 intent.putExtra("channel_name", "spinnerSelection");
                 intent.putExtra("channel_description", "text");
-                if (pendingIntent == null) {
-                    pendingIntent = PendingIntent.getBroadcast(getActivity(), 0, intent, PendingIntent.FLAG_IMMUTABLE);
-                }
 
+                // System.currentTimeMillis()를 사용하여 요청 코드 생성
+                int requestCode = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
+
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity(), requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+
             }
 
             @Override
