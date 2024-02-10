@@ -21,7 +21,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.todoido.Adapter.CardAdapter;
 import com.example.todoido.R;
-import com.example.todoido.SnowView;
+import com.example.todoido.AnimeView.SnowView;
 import com.example.todoido.ViewModel.MonthViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

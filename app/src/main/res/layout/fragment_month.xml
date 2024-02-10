@@ -8,7 +8,7 @@
     android:orientation="horizontal"
     tools:context=".Fragment.MonthFragment">
 
-    <com.example.todoido.SnowView
+    <com.example.todoido.AnimeView.SnowView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/snowView" />

@@ -3,8 +3,6 @@ package com.example.todoido.Fragment;
 import static android.content.ContentValues.TAG;
 
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +12,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import androidx.fragment.app.Fragment;
 
-import com.example.todoido.SnowView;
+import com.example.todoido.AnimeView.SnowView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -25,18 +23,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import com.example.todoido.R;
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.todoido.R;
 import com.example.todoido.ViewModel.YearViewModel;
 
 public class YearFragment extends Fragment {

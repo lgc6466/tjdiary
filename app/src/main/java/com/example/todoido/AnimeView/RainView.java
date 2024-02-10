@@ -1,4 +1,4 @@
-package com.example.todoido;
+package com.example.todoido.AnimeView;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -8,27 +8,29 @@ import android.view.View;
 
 import androidx.core.content.ContextCompat;
 
-public class FlowerView extends View {
+import com.example.todoido.R;
+
+public class RainView extends View {
 
     private static final int NUM_SNOWFLAKES = 100;
     private static final long DELAY = 5L;
 
     private SnowFlake[] snowflakes = new SnowFlake[NUM_SNOWFLAKES];
 
-    public FlowerView(Context context) {
+    public RainView(Context context) {
         super(context);
     }
 
-    public FlowerView(Context context, AttributeSet attrs) {
+    public RainView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public FlowerView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public RainView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
     protected void resize(int width, int height) {
-        Drawable drawable = ContextCompat.getDrawable(getContext(), R.drawable.snowflake);  // 눈송이 이미지를 가져옵니다.
+        Drawable drawable = ContextCompat.getDrawable(getContext(), R.drawable.rain2);  // 눈송이 이미지를 가져옵니다.
 
         for (int i = 0; i < NUM_SNOWFLAKES; i++) {
             snowflakes[i] = SnowFlake.create(width, height, drawable);  // SnowFlake.create 메소드에 Drawable 객체를 전달합니다.

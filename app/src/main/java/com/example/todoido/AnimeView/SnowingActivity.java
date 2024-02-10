@@ -1,4 +1,4 @@
-package com.example.todoido;
+package com.example.todoido.AnimeView;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -20,6 +20,8 @@ import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.core.content.ContextCompat;
+
+import com.example.todoido.R;
 
 import java.util.Random;
 

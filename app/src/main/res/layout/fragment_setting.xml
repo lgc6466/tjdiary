@@ -12,25 +12,25 @@
         android:background="#80000000"
         android:visibility="gone" />
 
-    <com.example.todoido.FlowerView
+    <com.example.todoido.AnimeView.FlowerView
         android:id="@+id/flowerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="invisible" />
 
-    <com.example.todoido.RainView
+    <com.example.todoido.AnimeView.RainView
         android:id="@+id/rainView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="invisible" />
 
-    <com.example.todoido.LeaveView
+    <com.example.todoido.AnimeView.LeaveView
         android:id="@+id/leaveView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="invisible" />
 
-    <com.example.todoido.SnowView
+    <com.example.todoido.AnimeView.SnowView
         android:id="@+id/snowView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

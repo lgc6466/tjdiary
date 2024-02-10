@@ -1,9 +1,10 @@
 package com.example.todoido.Fragment;
 
-import static android.content.ContentValues.TAG;
-
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,15 +18,14 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.todoido.Adapter.DayTaskAdapter;
+import com.example.todoido.AlarmReceiver;
 import com.example.todoido.R;
-import com.example.todoido.SnowView;
 import com.example.todoido.ViewModel.DayTask;
 import com.example.todoido.ViewModel.DayViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -42,6 +42,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 public class DayFragment extends Fragment {
@@ -64,6 +65,11 @@ public class DayFragment extends Fragment {
         blackBackground.setVisibility(View.GONE);
     }
 
+   
+    // 알림
+    private AlarmManager alarmManager;
+    private PendingIntent pendingIntent;
+    
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_day, container, false);
@@ -86,6 +92,69 @@ public class DayFragment extends Fragment {
         Button timePickerButton = view.findViewById(R.id.timePickerButton);
         Button timePickerButton2 = view.findViewById(R.id.timePickerButton2);
         MaterialButton addButton = view.findViewById(R.id.addButton);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String item = (String) parent.getItemAtPosition(position);
+
+                // 데이터베이스에 알림 시간 저장
+                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("일정 경로/" + "일정 ID");
+                databaseReference.child("spinnerSelection").setValue(item);  // 알림 시간 저장
+
+                Calendar calendar = Calendar.getInstance();
+                int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                int minute = calendar.get(Calendar.MINUTE);
+
+                switch(item) {
+                    case "5분 전":
+                        calendar.add(Calendar.MINUTE, -5);
+                        break;
+                    case "10분 전":
+                        calendar.add(Calendar.MINUTE, -10);
+                        break;
+                    case "30분 전":
+                        calendar.add(Calendar.MINUTE, -30);
+                        break;
+                    case "1시간 전":
+                        calendar.add(Calendar.HOUR_OF_DAY, -1);
+                        break;
+                    case "3시간 전":
+                        calendar.add(Calendar.HOUR_OF_DAY, -3);
+                        break;
+                    default:
+                        // "선택 안 함"의 경우 알림을 취소
+                        if(alarmManager != null && pendingIntent != null) {
+                            alarmManager.cancel(pendingIntent);
+                        }
+                        return;
+                }
+
+                // 현재 시간보다 알람 시간이 이전이라면 다음날로 설정
+                if(calendar.before(Calendar.getInstance())) {
+                    calendar.add(Calendar.DATE, 1);
+                }
+
+                // 알람 설정
+                if (alarmManager == null) {
+                    alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+                }
+                Intent intent = new Intent(getActivity(), AlarmReceiver.class);
+                intent.putExtra("channel_name", "spinnerSelection");
+                intent.putExtra("channel_description", "text");
+                if (pendingIntent == null) {
+                    pendingIntent = PendingIntent.getBroadcast(getActivity(), 0, intent, PendingIntent.FLAG_IMMUTABLE);
+                }
+
+                alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // 아무것도 선택되지 않은 경우 처리
+            }
+        });
+
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -106,17 +175,6 @@ public class DayFragment extends Fragment {
                         smartNotification.setChecked(false);
                     }
 
-                    spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                        @Override
-                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                            String selectedItem = parent.getItemAtPosition(position).toString();
-                            Toast.makeText(getActivity(), selectedItem + " 선택됨", Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onNothingSelected(AdapterView<?> parent) {
-                        }
-                    });
                 }
             }
         });
@@ -162,7 +220,7 @@ public class DayFragment extends Fragment {
                 timePickerButton.setText(task.getStartTime());
                 timePickerButton2.setText(task.getEndTime());
                 day_txt.setText(task.getText());
-                spinner.setSelection(((ArrayAdapter<String>)spinner.getAdapter()).getPosition(task.getSpinnerSelection()));
+                spinner.setSelection(((ArrayAdapter<String>) spinner.getAdapter()).getPosition(task.getSpinnerSelection()));
                 smartNotification.setChecked(task.isChecked());
                 selectedTaskPosition = adapter.getTaskList().indexOf(task);
 
@@ -284,38 +342,43 @@ public class DayFragment extends Fragment {
         });
 
 
-
-
-        SnowView snowView = view.findViewById(R.id.snowView);
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference userRef = database.getReference("snow").child(currentUser.getUid());
-
-            // Read the toggle state from the database
-            userRef.child("snowEffectEnabled").addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    Boolean snowEffectEnabled = dataSnapshot.getValue(Boolean.class);
-                    if (snowEffectEnabled != null && snowEffectEnabled) {
-                        // The toggle is enabled, so show the SnowView
-                        snowView.setVisibility(View.VISIBLE);
-                    } else {
-                        // The toggle is disabled or not set, so hide the SnowView
-                        snowView.setVisibility(View.INVISIBLE);
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("seasonEffect");
+        userRef.child("seasonEffect").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String seasonEffect = dataSnapshot.getValue(String.class);
+                if (seasonEffect != null) {
+                    switch (seasonEffect) {
+                        case "spring":
+                            spinner.setSelection(1);
+                            break;
+                        case "summer":
+                            spinner.setSelection(2);
+                            break;
+                        case "fall":
+                            spinner.setSelection(3);
+                            break;
+                        case "winter":
+                            spinner.setSelection(4);
+                            break;
+                        case "none":
+                        default:
+                            spinner.setSelection(0);
+                            break;
                     }
+                } else {
+                    spinner.setSelection(0);
                 }
+            }
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    // Failed to read value
-                    Log.w(TAG, "Failed to read value.", databaseError.toException());
-                }
-            });
-        }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // 데이터를 불러오는데 실패했을 경우 동작
+            }
+        });
 
         return view;
-    }
+}
 
 
 }

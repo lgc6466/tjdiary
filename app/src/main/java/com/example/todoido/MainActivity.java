@@ -4,7 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.widget.Toast;
 
 import com.example.todoido.Fragment.DayFragment;
 import com.example.todoido.Fragment.MonthFragment;
@@ -28,8 +34,27 @@ public class MainActivity extends AppCompatActivity {
     YearFragment yearFragment;
     int prevSelectedTab = 0;
 
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        createNotificationChannel();
+
+        if (!areNotificationsEnabled()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
+                startActivity(intent);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                intent.putExtra("app_package", getPackageName());
+                intent.putExtra("app_uid", getApplicationInfo().uid);
+                startActivity(intent);
+            }
+        } else {
+            doSomething();
+        }
 
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (firebaseUser != null) {
@@ -121,5 +146,27 @@ public class MainActivity extends AppCompatActivity {
             setContentView(R.layout.activity_main);
 
         }
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "channel_name";
+            String description = "channel_description";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("channel_id", name, importance);
+            channel.setDescription(description);
+
+            // Register the channel with the system
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    private boolean areNotificationsEnabled() {
+        // 여기에 알림이 활성화되어 있는지 확인하는 코드를 작성하세요.
+        return true;  // 임시로 항상 true를 반환하도록 설정.
+    }
+
+    private void doSomething() {
     }
 }

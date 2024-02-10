@@ -1,6 +1,5 @@
-package com.example.todoido;
+package com.example.todoido.AnimeView;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 

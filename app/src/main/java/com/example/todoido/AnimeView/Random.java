@@ -1,4 +1,4 @@
-package com.example.todoido;
+package com.example.todoido.AnimeView;
 public class Random {
     private static final java.util.Random RANDOM = new java.util.Random();
 
